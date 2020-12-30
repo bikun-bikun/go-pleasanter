@@ -21,7 +21,7 @@ type ItemResult struct {
 	Response       *ItemResponse `json:"Response,omitempty"`
 }
 
-func (c *Client) GetItems(t string) (*ItemResponse, error) {
+func (c *Client) GetItems(t string) (*ItemResult, error) {
 	rb := ItemRequest{
 		requestBase: c.requestBase,
 		Offset:      0,
@@ -44,7 +44,7 @@ func (c *Client) GetItems(t string) (*ItemResponse, error) {
 	}
 
 	decoder := json.NewDecoder(res.Body)
-	var r ItemResponse
+	var r ItemResult
 	if res.StatusCode != http.StatusOK {
 		var er ErrorResult
 		err = decoder.Decode(&er)
@@ -62,11 +62,6 @@ func (c *Client) GetItems(t string) (*ItemResponse, error) {
 }
 
 type ItemResponse struct {
-	StatusCode int              `json:"StatusCode,omitempty"`
-	Response   ItemResponseBody `json:"Response,omitempty"`
-}
-
-type ItemResponseBody struct {
 	Offset     int     `json:"Offset,omitempty"`
 	PageSize   int     `json:"PageSize,omitempty"`
 	TotalCount int     `json:"TotalCount,omitempty"`
