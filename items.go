@@ -1,9 +1,17 @@
 package pleasanter
 
+import (
+	"encoding/json"
+	"errors"
+	"fmt"
+	"net/http"
+	"strings"
+)
+
 type ItemRequest struct {
 	requestBase
 	Offset int64 `json:"Offset,omitempty"`
-	View   View  `json:"View,omitempty"`
+	View   *View `json:"View,omitempty"`
 }
 
 type ItemResult struct {
@@ -13,7 +21,52 @@ type ItemResult struct {
 	Response       *ItemResponse `json:"Response,omitempty"`
 }
 
+func (c *Client) GetItems(t string) (*ItemResponse, error) {
+	rb := ItemRequest{
+		requestBase: c.requestBase,
+		Offset:      0,
+		View:        &View{},
+	}
+	s, err := json.Marshal(rb)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", fmt.Sprintf("%v/api/items/%v/get", c.endpoint, t), strings.NewReader(string(s)))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	decoder := json.NewDecoder(res.Body)
+	var r ItemResponse
+	if res.StatusCode != http.StatusOK {
+		var er ErrorResult
+		err = decoder.Decode(&er)
+		if err == nil {
+			err = errors.New(er.Message)
+		}
+	} else {
+		err = decoder.Decode(&r)
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &r, nil
+
+}
+
 type ItemResponse struct {
+	StatusCode int              `json:"StatusCode,omitempty"`
+	Response   ItemResponseBody `json:"Response,omitempty"`
+}
+
+type ItemResponseBody struct {
 	Offset     int     `json:"Offset,omitempty"`
 	PageSize   int     `json:"PageSize,omitempty"`
 	TotalCount int     `json:"TotalCount,omitempty"`

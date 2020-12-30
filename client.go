@@ -3,12 +3,11 @@ package pleasanter
 import "net/http"
 
 type Client struct {
-	endpoint   string
-	apiVersion string
-	apiKey     string
+	requestBase
+	endpoint string
 	*http.Client
 }
 
 func NewClient(endpoint, apiversion, apikey string) *Client {
-	return &Client{endpoint, apiversion, apikey, http.DefaultClient}
+	return &Client{requestBase{apiversion, apikey}, endpoint, http.DefaultClient}
 }
