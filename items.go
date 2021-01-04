@@ -69,6 +69,11 @@ func (c *Client) GetItems(tableID string, filter *View) ([]ItemData, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	if len(r.Data) == 1 && r.TotalCount == 0 {
+		return r.Data, nil
+	}
+
 	completed := false
 	itemData := make([]ItemData, 0, r.TotalCount)
 	encountered := map[int]bool{}
