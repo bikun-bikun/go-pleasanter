@@ -2,7 +2,9 @@
 
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
 
-当リポジトリは[株式会社インプリム](https://implem.co.jp)が開発しているオープンソースソフトウェア「プリザンター」のAPIを利用するためのGoクライアントです。
+当リポジトリは[株式会社インプリム](https://implem.co.jp)が開発しているオープンソースソフトウェア「プリザンター」のAPIを利用するためのサードパーティGoクライアントです。
+
+サードパーティクライアントの為、公式への問い合わせはお控えください。
 
 動作確認は[.net Core版](https://github.com/Implem/Implem.Pleasanter.NetCore) にて行っています。
 
