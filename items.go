@@ -64,34 +64,18 @@ func getItems(c *Client, t string, o int64, v *View) (*ItemResponse, error) {
 
 //もっとうまい実装方法は無いものだろうか・・・
 func (c *Client) GetItems(tableID string, filter *View) ([]ItemData, error) {
-	var r *ItemResponse
-	r, err := getItems(c, tableID, 0, filter)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(r.Data) == 1 && r.TotalCount == 0 {
-		return r.Data, nil
-	}
-
+	var itemData []ItemData
+	var offset int64
 	completed := false
-	itemData := make([]ItemData, 0, r.TotalCount)
 	encountered := map[int]bool{}
-	for _, d := range r.Data {
-		if !encountered[d.IssueID] {
-			encountered[d.IssueID] = true
-			itemData = append(itemData, d)
-		}
-	}
-
-	if r.TotalCount == len(itemData) {
-		completed = true
-	}
 
 	for completed == false {
-		r, err = getItems(c, tableID, int64(len(itemData)/r.PageSize), filter)
+		r, err := getItems(c, tableID, offset, filter)
 		if err != nil {
 			return nil, err
+		}
+		if itemData == nil {
+			itemData = make([]ItemData, 0, r.TotalCount)
 		}
 		for _, d := range r.Data {
 			if !encountered[d.IssueID] {
@@ -100,9 +84,11 @@ func (c *Client) GetItems(tableID string, filter *View) ([]ItemData, error) {
 			}
 		}
 
-		if r.TotalCount == len(itemData) {
+		if r.TotalCount <= len(itemData) {
 			completed = true
+			continue
 		}
+		offset = int64(len(itemData)/r.PageSize)
 	}
 	return itemData, nil
 }
