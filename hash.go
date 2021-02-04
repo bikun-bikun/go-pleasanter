@@ -6,6 +6,7 @@ type Attachment struct {
 	Name        string `json:"Name"`
 	ContentType string `json:"ContentType"`
 	Base64      string `json:"Base64"`
+	Deleted     int    `json:"Deleted"`
 }
 
 type CheckHash map[string]bool
