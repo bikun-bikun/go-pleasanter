@@ -62,7 +62,18 @@ func getItems(c *Client, t string, o int64, v *View) (*ItemResponse, error) {
 	return r.Response, nil
 }
 
-//もっとうまい実装方法は無いものだろうか・・・
+func (c *Client) GetItemByID(itemID string) (*ItemData, error) {
+	r, err := getItems(c, itemID, 0, nil)
+	if err != nil {
+		return nil, err
+	}
+	var i *ItemData
+	for _, v := range r.Data {
+		i = &v
+	}
+	return i, nil
+}
+
 func (c *Client) GetItems(tableID string, filter *View) ([]ItemData, error) {
 	var itemData []ItemData
 	var offset int64
@@ -88,7 +99,7 @@ func (c *Client) GetItems(tableID string, filter *View) ([]ItemData, error) {
 			completed = true
 			continue
 		}
-		offset = int64(len(itemData)/r.PageSize)
+		offset = int64(len(itemData) / r.PageSize)
 	}
 	return itemData, nil
 }
