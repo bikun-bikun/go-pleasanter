@@ -3,10 +3,11 @@ package pleasanter
 type AttachmentsHash map[string][]Attachment
 
 type Attachment struct {
+	Guid        string `json:"Guid,omitempty"`
 	Name        string `json:"Name"`
 	ContentType string `json:"ContentType"`
 	Base64      string `json:"Base64"`
-	Deleted     int    `json:"Deleted"`
+	Deleted     int    `json:"Deleted,omitempty"`
 }
 
 type CheckHash map[string]bool
