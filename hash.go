@@ -4,9 +4,9 @@ type AttachmentsHash map[string][]Attachment
 
 type Attachment struct {
 	Guid        string `json:"Guid,omitempty"`
-	Name        string `json:"Name"`
-	ContentType string `json:"ContentType"`
-	Base64      string `json:"Base64"`
+	Name        string `json:"Name,omitempty"`
+	ContentType string `json:"ContentType,omitempty"`
+	Base64      string `json:"Base64,omitempty"`
 	Deleted     int    `json:"Deleted,omitempty"`
 }
 
