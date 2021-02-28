@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+const (
+	getPath = "%v/api/items/%v/get"
+)
+
 type ItemRequest struct {
 	requestBase
 	Offset int64 `json:"Offset,omitempty"`
@@ -62,6 +66,46 @@ func getItems(c *Client, t string, o int64, v *View) (*ItemResponse, error) {
 	return r.Response, nil
 }
 
+func (c *Client) UpdateItem(itemID string, itemData ItemData) (ItemUpdateResponse, error) {
+	rb := ItemUpdateRequest{
+		c.requestBase,
+		itemData,
+	}
+	var iur ItemUpdateResponse
+	s, err := json.Marshal(rb)
+	if err != nil {
+		return iur, err
+	}
+
+	req, err := http.NewRequest("POST", fmt.Sprintf("%v/api/items/%v/update", c.endpoint, itemID), strings.NewReader(string(s)))
+	if err != nil {
+		return iur, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	res, err := c.Do(req)
+	if err != nil {
+		return iur, err
+	}
+
+	decoder := json.NewDecoder(res.Body)
+
+	if res.StatusCode != http.StatusOK {
+		var er ErrorResult
+		err = decoder.Decode(&er)
+		if err == nil {
+			err = errors.New(er.Message)
+		}
+	} else {
+		err = decoder.Decode(&iur)
+	}
+	if err != nil {
+		return iur, err
+	}
+
+	return iur, nil
+
+}
+
 func (c *Client) GetItemByID(itemID string) (*ItemData, error) {
 	r, err := getItems(c, itemID, 0, nil)
 	if err != nil {
@@ -112,7 +156,6 @@ type ItemResponse struct {
 }
 
 type ItemData struct {
-	APIVersion         float64          `json:"ApiVersion,omitempty"`
 	SiteID             int              `json:"SiteId,omitempty"`
 	UpdatedTime        string           `json:"UpdatedTime,omitempty"`
 	IssueID            int              `json:"IssueId,omitempty"`
@@ -138,4 +181,17 @@ type ItemData struct {
 	CheckHash          *CheckHash       `json:"CheckHash,omitempty"`
 	ClassHash          *ClassHash       `json:"ClassHash,omitempty"`
 	AttachmentsHash    *AttachmentsHash `json:"AttachmentsHash,omitempty"`
+}
+
+type ItemUpdateRequest struct {
+	requestBase
+	ItemData
+}
+
+type ItemUpdateResponse struct {
+	ID             int    `json:"Id"`
+	StatusCode     int    `json:"StatusCode"`
+	LimitPerDate   int    `json:"LimitPerDate"`
+	LimitRemaining int    `json:"LimitRemaining"`
+	Message        string `json:"Message"`
 }
