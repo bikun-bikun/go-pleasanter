@@ -1,3 +1,3 @@
 module github.com/bikun-bikun/go-pleasanter
 
-go 1.15
+go 1.16
